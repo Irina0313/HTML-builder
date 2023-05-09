@@ -1,9 +1,37 @@
 
+//При самопроверке обнаружилось, что папка copy не актуализируется. Переписала код. 
 const path = require('path');
 const fs = require('fs');
-const sourceFolder = path.join(__dirname, 'files');
+const fsPromises = require('fs/promises');
 
-fs.readdir(
+
+(async () => {
+  try {
+    /* Создаем папку-копию  */
+    await fsPromises.mkdir(path.join(__dirname, 'files-copy'), { recursive: true });
+
+    /*  Читаем содержимое папки-копии и очищаем ее*/
+    const copyFolderValue = await fsPromises.readdir(path.join(__dirname, 'files-copy'));
+    for (let item of copyFolderValue) {
+      await fsPromises.rm(path.join(__dirname, 'files-copy', item), { force: true });
+    }
+    /* Сохраняем содержимое исходной папки в переменную  */
+    const initValue = await fsPromises.readdir(path.join(__dirname, 'files'));
+
+    /*  Копируем файлы в папку-копию  */
+    for (let item of initValue) {
+      await fsPromises.copyFile(path.join(__dirname, 'files', item), path.join(__dirname, 'files-copy', item));
+    }
+  } catch (err) {
+    console.log(err);
+  }
+})();
+
+
+
+
+
+/*fs.readdir(
   sourceFolder, (err, files) => {
     if (err) throw err;
     if (files.includes('files-copy')) {
@@ -21,18 +49,18 @@ fs.readdir(
       );
     }
 
-  });
+  });*/
 
 
 
-fs.mkdir(path.join(__dirname, 'files-copy'),
+/*fs.mkdir(path.join(__dirname, 'files-copy'),
   { recursive: true }, (err) => {
     if (err) {
       return console.error(err);
     }
-  });
+  });*/
 
-const copyFolder = path.join(__dirname, 'files-copy');
+/*const copyFolder = path.join(__dirname, 'files-copy');
 
 fs.readdir(
   sourceFolder, (err, files) => {
@@ -53,4 +81,4 @@ function copyFiles(filesArr) {
       }
     });
   })
-}
+}*/
